@@ -6,6 +6,8 @@ A lightweight, zero-configuration CLI tool to discover and list packages in remo
 
 `deb-repo-query` is designed for situations where you have a Debian repository URL but don't know the available release codenames (e.g., `bullseye`, `focal`, `stable`). It is particularly useful for repositories hosted on S3 buckets where directory listing is disabled, making it impossible to browse the `dists/` directory via a web browser.
 
+It was also a fun project to throw at Gemini CLI to see if it could do it. (It did alright).
+
 ## Features
 
 - **Automatic Codename Discovery**: Probes for common Debian/Ubuntu codenames and intelligently guesses potential names based on the repository URL and domain.
