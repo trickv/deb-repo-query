@@ -16,6 +16,7 @@ It was also a fun project to throw at Gemini CLI to see if it could do it. (It d
 - **Supports All Repo Types**: Works with both standard (`dists/` based) and "flat" repositories.
 - **Rich Parsing**: Automatically detects and parses `InRelease`, `Release`, and compressed `Packages.gz` files.
 - **Simple Output**: Prints results in a clean `<release>/<package>` format, perfect for piping into other tools.
+- **Version Lookup**: Feed a `<release>/<package>` pair back in to list every available version, sorted by Debian's version-comparison rules rather than naive string order.
 - **Zero Install**: Inline PEP 723 dependencies mean `uv run` handles Python and `requests` for you.
 
 ## Requirements
@@ -51,6 +52,36 @@ If you already know the codename, you can provide it as an optional second argum
 ```bash
 ./deb-repo-query.py https://deb.nodesource.com/node_20.x nodistro
 ```
+
+### Available Versions of a Package
+Pass a `<release>/<package>` pair -- the same format the listing above prints -- to see every
+version of that package, newest first, with the architectures each version was built for:
+
+```bash
+$ ./deb-repo-query.py https://pkgs.tailscale.com/stable/debian trixie/tailscale
+1.102.3      amd64 arm64 armhf i386 mips mips64el mipsel riscv64
+1.102.2      amd64 arm64 armhf i386 mips mips64el mipsel riscv64
+1.98.10      amd64 arm64 armhf i386 mips mips64el mipsel riscv64
+...
+0.97.0~219   amd64 arm64 armhf i386 mips
+```
+
+Versions are ordered using Debian's own comparison rules, so `1.102.3` correctly outranks
+`1.98.10` and a `~` pre-release like `1.0~rc1` sorts below `1.0`.
+
+Omit the codename to search every release the tool can find. The release is then shown per line:
+
+```bash
+$ ./deb-repo-query.py https://pkgs.tailscale.com/stable/debian /tailscale-nginx-auth
+bookworm/0.1.3  amd64 arm64
+bookworm/0.1.2  amd64
+bullseye/0.1.3  amd64 arm64
+...
+```
+
+For a flat repository, use `./<package>` -- again matching how the listing prints those.
+
+Run `./deb-repo-query.py --help` for the full summary.
 
 ### Without uv
 If you'd rather not use `uv`, the script is plain Python 3.9+ with a single dependency:
