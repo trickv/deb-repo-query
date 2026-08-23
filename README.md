@@ -16,6 +16,18 @@ It was also a fun project to throw at Gemini CLI to see if it could do it. (It d
 - **Supports All Repo Types**: Works with both standard (`dists/` based) and "flat" repositories.
 - **Rich Parsing**: Automatically detects and parses `InRelease`, `Release`, and compressed `Packages.gz` files.
 - **Simple Output**: Prints results in a clean `<release>/<package>` format, perfect for piping into other tools.
+- **Zero Install**: Inline PEP 723 dependencies mean `uv run` handles Python and `requests` for you.
+
+## Requirements
+
+Only [uv](https://docs.astral.sh/uv/). The script declares its own dependencies inline
+([PEP 723](https://peps.python.org/pep-0723/)), so `uv` fetches a suitable Python and installs
+`requests` into a cached, throwaway environment on first run. There is nothing to install,
+no virtualenv to activate, and nothing added to your system Python.
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh   # if you don't have uv yet
+```
 
 ## Usage
 
@@ -25,10 +37,26 @@ List all packages in all discovered releases:
 ./deb-repo-query.py https://s3.opensky-network.org/website-public-repos/debian
 ```
 
+The `#!/usr/bin/env -S uv run --script` shebang means you can just execute the file. You can
+also run it explicitly, or straight from GitHub without cloning:
+
+```bash
+uv run deb-repo-query.py https://s3.opensky-network.org/website-public-repos/debian
+uv run https://raw.githubusercontent.com/trickv/deb-repo-query/main/deb-repo-query.py \
+    https://s3.opensky-network.org/website-public-repos/debian
+```
+
 ### Specific Release
 If you already know the codename, you can provide it as an optional second argument:
 ```bash
-./deb-repo-query.py https://deb.nodesource.com/node_20.x bullseye
+./deb-repo-query.py https://deb.nodesource.com/node_20.x nodistro
+```
+
+### Without uv
+If you'd rather not use `uv`, the script is plain Python 3.9+ with a single dependency:
+```bash
+pip install requests
+python3 deb-repo-query.py <repo_url> [codename]
 ```
 
 ## How it Compares
